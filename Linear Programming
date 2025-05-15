@@ -1,0 +1,13 @@
+#maximize x+y
+#6x+4y<=24,x+2y<=6,-x+y<=1,y<=2
+from gekko import GEKKO
+m=GEKKO(remote=False)
+x,y=m.Array(m.Var,2,lb=0)
+m.Maximize(x+y)
+m.Equation(6*x+4*y<=24)
+m.Equation(x+2*y<=6)
+m.Equation(-x+y<=1)
+m.Equation(y<=2)
+m.solve(disp=False)
+xopt = (x.value[0]);yopt = (y.value[0])
+print('x:',xopt,'y:',yopt,'obj:',-m.options.objfcnval)
