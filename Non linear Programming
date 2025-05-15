@@ -1,0 +1,44 @@
+# min x0*x3(x0+x1+x2)+x2
+#s.t x0 x1 x2 x3 >=25 , summation x square=40 ,1<=x<=5
+#xini=(1,5,5,1)
+
+
+
+#using scipy
+from scipy.optimize import minimize 
+from scipy.optimize import minimize 
+def objective(x):
+  return x[0]*x[3]*(x[0]+x[1]+x[2])+x[2]
+def constraint1(x):
+  return x[0]*x[1]*x[2]*x[3]-25
+def constraint2(x):
+  sum_eq=40
+  for i in range(4):
+    sum_eq=sum_eq-x[i]**2
+  return sum_eq
+x0=[1,5,5,1]
+b=(1,5)
+bnds=(b,b,b,b)
+con1={'type':'ineq','fun':constraint1}
+con2={'type':'eq','fun':constraint2}
+cons=[con1,con2]
+sol=minimize(objective,x0,method='SLSQP',bounds=bnds,constraints=cons)
+x=sol.x
+print(f'solution={x}')
+print('objective:'+str(objective(x)))
+
+
+
+#using gekko
+from gekko import GEKKO
+import numpy as np
+m=GEKKO(remote=False)
+x=m.Array(m.Var,4,value=1,lb=1,ub=5)
+x1,x2,x3,x4=x
+x2.value=5;x3.value=5
+m.Equation([x1*x2*x3*x4>=25])
+m.Equation([x1**2+x2**2+x3**2+x4**2==40])
+m.Minimize(x1*x4*(x1+x2+x3)+x3)
+m.solve(disp=False)
+print('objective:',m.options.OBJFCNVAL)
+print('solution:',x)
