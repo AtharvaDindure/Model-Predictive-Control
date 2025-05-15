@@ -1,0 +1,35 @@
+#solved using scipy
+#problem data
+from scipy.optimize import minimize
+import numpy as np 
+Q=np.array([[1,0],[0,2]])
+p=np.array([1,2])
+G=np.array([[1,1],[1,2],[2,1]])
+h=np.array([3,4,5])
+x0=np.array([0,0])
+#define function
+def objective_function(x):
+  return 0.5*x @ Q @ x +p @ x
+#define constraints
+def constraint(x):
+  return G @ x-h
+#define optimization
+con={'type':'ineq','fun': constraint}
+b=(0,10);bnds=(b,b)
+opt={'maxiter':1000}
+res=minimize(objective_function,x0,constraints=con,bounds=bnds,method='SLSQP',options=opt)
+#print results
+print(f'optimal solution : x = {res.x}')
+print(f'optimal weight={res.fun}')
+
+
+#using GEKKO
+from gekko import GEKKO
+m=GEKKO(remote=False)
+x=m.Array(m.Var,2,lb=0,ub=10)
+m.Minimize(0.5*x @ Q @ x+ p@x)
+gx=G@x
+m.Equation([gx[i]>=h[i] for i in range (len(h))])
+m.solve(disp=False)
+print(f'optimal x= {x}')
+print(f'optimal weight = {m.options.objfcnval}')
