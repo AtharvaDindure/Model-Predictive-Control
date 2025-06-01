@@ -1,24 +1,6 @@
 from gekko import GEKKO
 import numpy as np
-#F1=0
-#F2=0
-#F3=0
-#F4=0
-#F5=0
-#F100=0
-#F200=0
-#T1=0
-#T2=0
-#T3=0
-#T100=0
-#T200=0
-#T201=0
-#P2=0
-#P100=0
-#Q100=0
-#Q200=0
-#X1=0
-#X2=0
+
 m=GEKKO(remote=False)
 F1=m.Var(lb=0,ub=20)
 F2=m.Var()
@@ -39,9 +21,12 @@ Q100=m.Var()
 Q200=m.Var()
 X1=m.Var()
 X2=m.Var(lb=35.5)
+
 m.Equation([X1==5])
 m.Equation([T1==40])
 m.Equation([T200==25])
+#m.Equation([X2==35.5])
+#m.Equation([P100==400])
 
 
 m.Equation([F1-F4-F2==0])
@@ -50,14 +35,32 @@ m.Equation([F4-F5==0])
 m.Equation([0.5616*P2+0.3126*X2+48.43-T2==0])
 m.Equation([0.507*P2+55-T3==0])
 m.Equation([((Q100-0.07*F1*(T2-T1))/38.5)-F4==0])
+m.Equation([(0.1538*P100+90-T100==0)])
 m.Equation([(Q100/36.6)-F100==0])
 m.Equation([(0.9576*F200*(T3-T200))/(0.14*F200+6.84)-Q200==0])
+m.Equation([(0.16*(F1+F3)*(T100-T2)-Q100==0)])
 m.Equation([(13.68*(T3-T200)/(0.14*F200+6.84))+T200-T201==0])
 m.Equation([(Q200/38.5)-F5==0])
 m.Minimize((600*F100+0.6*F200+1.009*(F2+F3)+0.2*F1-4800*F2))
 m.solve(disp=False)
 print('objective:',m.options.OBJFCNVAL)
+
 print('solution:',F1.value[0])
 print('solution:',F2.value[0])
-print('solution:',X2.value[0])
+print('solution:',F3.value[0])
+print('solution:',F4.value[0])
+print('solution:',F5.value[0])
+print('solution:',F100.value[0])
+print('solution:',F200.value[0])
+print('solution:',T1.value[0])
+print('solution:',T2.value[0])
+print('solution:',T3.value[0])
+print('solution:',T100.value[0])
+print('solution:',T200.value[0])
+print('solution:',T201.value[0])
+print('solution:',P2.value[0])
 print('solution:',P100.value[0])
+print('solution:',Q100.value[0])
+print('solution:',Q200.value[0])
+print('solution:',X1.value[0])
+print('solution:',X2.value[0])
