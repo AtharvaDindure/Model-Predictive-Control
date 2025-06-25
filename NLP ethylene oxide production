@@ -2,14 +2,17 @@ from gekko import GEKKO
 import numpy as np
 
 m=GEKKO(remote=False)
-x1=m.Var(value=0.997,lb=0,ub=1)
-x2=m.Var(value=1.264,lb=0,ub=1)
-x3=m.Var(value=0.209,lb=0,ub=1)
+x1=m.Var(value=0.997)
+x2=m.Var(value=1.264)
+x3=m.Var(value=0.209)
 x4=m.Var(value=1.004)
 u1=m.Var(lb=0.0704,ub=0.7042)
 u2=m.Var(lb=0.2465,ub=2.4648)
 y1=m.Var()
 y2=m.Var()
+
+u1=0.35
+u2=0.5
 
 g1=-8.13
 g2=-7.12
@@ -42,15 +45,15 @@ m.Equation([-u1*x34+A1*a*(x24**0.5)-A3*c*(x34**0.5)==0])
 m.Equation([e*(1-x4)+f*a*(x24**0.5)+g*b*(x24**0.25)+h*c*(x34**0.5)-i*(x4-Tc)==0])
 m.Equation([y1==x3])
 m.Equation([y2==x4])
-m.Minimize((A3*c*(x3**0.5)-A1*a*(x1**0.5)))
+
+m.Minimize((-1*(u1*x3*x4)))
 m.solve(disp=False)
 print('objective:',m.options.OBJFCNVAL)
-
+print()
 print('solution:',x1.value[0])
 print('solution:',x2.value[0])
 print('solution:',x3.value[0])
 print('solution:',x4.value[0])
-print('solution:',u1.value[0])
-print('solution:',u2.value[0])
+print()
 print('solution:',y1.value[0])
 print('solution:',y2.value[0])
