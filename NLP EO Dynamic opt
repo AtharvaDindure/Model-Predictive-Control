@@ -11,7 +11,7 @@ x4=m.Var(value=1.004)
 u1=m.MV(lb=0.0704,ub=0.7042)
 u1.STATUS=1
 u2=m.MV(lb=0.2465,ub=2.4648)
-u1.STATUS=1
+u2.STATUS=1
 y1=m.Var()
 y2=m.Var()
 
