@@ -9,6 +9,7 @@ x3_stor = []
 x4_stor = []
 u1_stor = []
 u2_stor = []
+time_stor=[]
 
 for i in range(1,10):
   #intu1u2past_val = 0
@@ -18,7 +19,7 @@ for i in range(1,10):
   #intu1u2past = m.Param(value=intu1u2past_val)
 
   tp = 46.8
-  m.time = np.linspace(tp*(i-1), tp*i, 10)
+  m.time = np.linspace(tp*(i-1), tp*i, 100)
 
   x1 = m.Var(value=currstate[0])
   x2 = m.Var(value=currstate[1])
@@ -66,33 +67,37 @@ for i in range(1,10):
   x4_stor.extend(x4.value)  
   u1_stor.extend(u1.value)
   u2_stor.extend(u2.value)
+  time_stor.extend(m.time.tolist())
+  #print("Time:",m.time.tolist())
+
 
 print("Past integral value:", intu1u2past_val)
-print("Past integral value:", x1_stor)
+print("x1 total:", x1_stor)
+print("Time:", time_stor)
 
-plt.figure(figsize=(10,24))
+plt.figure(figsize=(15,24))
 plt.subplot(6,1,1)
-plt.plot(m.time, x1.value, 'b-', label='density of gas')
+plt.plot(time_stor, x1_stor, 'b-', label='density of gas')
 plt.xlabel('Time'); plt.ylabel('x1'); plt.grid(); plt.legend()
 
 plt.subplot(6,1,2)
-plt.plot(m.time, x2.value, 'g-', label='ethylene concentration')
+plt.plot(time_stor, x2_stor, 'g-', label='ethylene concentration')
 plt.xlabel('Time'); plt.ylabel('x2'); plt.grid(); plt.legend()
 
 plt.subplot(6,1,3)
-plt.plot(m.time, x3.value, 'r-', label='EO concentration')
+plt.plot(time_stor, x3_stor, 'r-', label='EO concentration')
 plt.xlabel('Time'); plt.ylabel('x3'); plt.grid(); plt.legend()
 
 plt.subplot(6,1,4)
-plt.plot(m.time, x4.value, 'y-', label='Temperature')
+plt.plot(time_stor, x4_stor, 'y-', label='Temperature')
 plt.xlabel('Time'); plt.ylabel('x4'); plt.grid(); plt.legend()
 
 plt.subplot(6,1,5)
-plt.plot(m.time, u1.value, 'b-', label='Feed rate')
+plt.plot(time_stor, u1_stor, 'b-', label='Feed rate')
 plt.xlabel('Time'); plt.ylabel('u1'); plt.grid(); plt.legend()
 
 plt.subplot(6,1,6)
-plt.plot(m.time, u2.value, 'b-', label='Feed rate')
+plt.plot(time_stor, u2_stor, 'b-', label='Feed rate')
 plt.xlabel('Time'); plt.ylabel('u2'); plt.grid(); plt.legend()
 
 plt.tight_layout()
