@@ -1,0 +1,104 @@
+from gekko import GEKKO
+import numpy as np
+import matplotlib.pyplot as plt
+
+currstate = (0.997, 1.264, 0.209, 1.004)
+x1_stor = []
+x2_stor = []
+x3_stor = []
+x4_stor = []
+u1_stor = []
+u2_stor = []
+time_stor=[]
+intu1u2past_val=0
+
+for i in range(1,10):
+  m = GEKKO(remote=False)
+
+  intu1u2curr = m.Var(value=0)
+  intu1u2past = m.Param(value=intu1u2past_val)
+
+  tp = 46.8
+  m.time = np.linspace(tp*(i-1), tp*10, 10*(11-i))
+
+  x1 = m.Var(value=currstate[0])
+  x2 = m.Var(value=currstate[1])
+  x3 = m.Var(value=currstate[2])
+  x4 = m.Var(value=currstate[3])
+
+  u1 = m.MV(lb=0.0704, ub=0.7042); u1.STATUS = 1
+  u2 = m.MV(lb=0.2465, ub=2.4648); u2.STATUS = 1  
+
+  g1, g2, g3 = -8.13, -7.12, -11.07
+  A1, A2, A3 = 92.8, 12.66, 2412.71
+  B1, B2, B3, B4 = 7.32, 10.39, 2170.57, 7.02
+  Tc = 1
+  a = m.exp(g1/x4)
+  b = m.exp(g2/x4)
+  c = m.exp(g3/x4)
+  x24 = x2*x4
+  x34 = x3*x4
+  e = u1/x1
+  f = B1/x1
+  g = B2/x1
+  h = B3/x1
+  i = B4/x1
+
+  m.Equation(x1.dt() == u1*(1-x1*x4))
+  m.Equation(x2.dt() == u1*(u2-x24) - A1*a*(x24**0.5) - A2*b*(x24**0.25))
+  m.Equation(x3.dt() == -u1*x34 + A1*a*(x24**0.5) - A3*c*(x34**0.5))
+  m.Equation(x4.dt() == e*(1-x4) + f*a*(x24**0.5) + g*b*(x24**0.25) + h*c*(x34**0.5) - i*(x4-Tc))
+
+  # Integrated material constraint
+  m.Equation(intu1u2curr.dt() == (u1*u2)/tp)
+  m.Equation( 0.175 >= intu1u2curr+intu1u2past)
+
+  m.Obj(-1*(u1*x3*x4))
+
+  m.options.IMODE = 6
+  m.solve(disp=False)
+
+  # Update for next run
+  currstate = (x1.value[10], x2.value[10], x3.value[10], x4.value[10])
+  intu1u2past_val += intu1u2curr.value[10]
+  x1_stor.extend(x1.value[:10])
+  x2_stor.extend(x2.value[:10])
+  x3_stor.extend(x3.value[:10])
+  x4_stor.extend(x4.value[:10])  
+  u1_stor.extend(u1.value[:10])
+  u2_stor.extend(u2.value[:10])
+  time_stor.extend(m.time.tolist()[:10])
+  #print("Time:",m.time.tolist())
+
+
+print("Past integral value:", intu1u2past_val)
+print("x1 total:", x1_stor)
+print("Time:", time_stor)
+
+plt.figure(figsize=(15,24))
+plt.subplot(6,1,1)
+plt.plot(time_stor, x1_stor, 'b-', label='density of gas')
+plt.xlabel('Time'); plt.ylabel('x1'); plt.grid(); plt.legend()
+
+plt.subplot(6,1,2)
+plt.plot(time_stor, x2_stor, 'g-', label='ethylene concentration')
+plt.xlabel('Time'); plt.ylabel('x2'); plt.grid(); plt.legend()
+
+plt.subplot(6,1,3)
+plt.plot(time_stor, x3_stor, 'r-', label='EO concentration')
+plt.xlabel('Time'); plt.ylabel('x3'); plt.grid(); plt.legend()
+
+plt.subplot(6,1,4)
+plt.plot(time_stor, x4_stor, 'y-', label='Temperature')
+plt.xlabel('Time'); plt.ylabel('x4'); plt.grid(); plt.legend()
+
+plt.subplot(6,1,5)
+plt.plot(time_stor, u1_stor, 'b-', label='Feed rate')
+plt.xlabel('Time'); plt.ylabel('u1'); plt.grid(); plt.legend()
+
+plt.subplot(6,1,6)
+plt.plot(time_stor, u2_stor, 'b-', label='Feed rate')
+plt.xlabel('Time'); plt.ylabel('u2'); plt.grid(); plt.legend()
+
+plt.tight_layout()
+plt.show()
